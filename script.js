@@ -1,4 +1,4 @@
-class Cambio {
+class Deck {
     constructor() {
         this.deckOfCards = [{ symb: 0x41, value: 1, name: "Ace", suit: "diamonds" },
             { symb: 0x42, value: 2, name: "2", suit: "diamonds" },
@@ -28,6 +28,7 @@ class Cambio {
             this.deckOfCards.push({ symb: 0x3F, value: -5, name: "Jocker", suit: "nosuit" });
         }
         this.shuffle(this.deckOfCards);
+        this.currentCardIdx = 0;
     }
     shuffle(array) {
         var i = 0,
@@ -39,6 +40,22 @@ class Cambio {
             array[i] = array[j]
             array[j] = temp
         }
+    }
+
+    dealACard() {
+        var card = this.deckOfCards[this.currentCardIdx];
+        this.currentCardIdx++;
+        if (this.currentCardIdx === this.deckOfCards.length) {
+            this.currentCardIdx = 0;
+            this.shuffle(this.deckOfCards);
+        }
+        return card;
+    }
+}
+
+class Cambio {
+    constructor() {
+        this.deckOfCards = new Deck();
     }
     setCardState(card, isVisible) {
         if (isVisible) {
@@ -57,11 +74,12 @@ function ready() {
     let cards = Array.from(document.getElementsByClassName('card'));
     let game = new Cambio(cards);
 
-    cards.forEach(card => {
-        card.isUp = false;
-        game.setCardState(card, false);
-        card.addEventListener('click', () => {
-            game.flipCard(card);
+    cards.forEach(cardWidget => {
+        cardWidget.isUp = false;
+        cardWidget.card = game.deckOfCards.dealACard();
+        game.setCardState(cardWidget, false);
+        cardWidget.addEventListener('click', () => {
+            game.flipCard(cardWidget);
         });
     });
 }
